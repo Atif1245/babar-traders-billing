@@ -1,0 +1,1385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Babar Traders Billing System</title>
+<style>
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 400;
+  src: url('fonts/Oswald-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 600;
+  src: url('fonts/Oswald-SemiBold.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 700;
+  src: url('fonts/Oswald-Bold.ttf') format('truetype');
+}
+
+:root{
+  --bg:#0F111A;
+  --card:#1A1D2C;
+  --card-header:#222638;
+  --ink:#ECEEF8;
+  --mut:#8E95B3;
+  --line:#2E344D;
+  --acc:#5356D6;
+  --acc-hover:#6568E8;
+  --acc-light:#ECEEF8;
+  --on:#FFFFFF;
+  --warn:#FF5252;
+  --warn-bg:#2C1B20;
+  --success:#10B981;
+  --border-radius:10px;
+  box-sizing:border-box;
+}
+
+[data-theme="light"]{
+  --bg:#F3F4FA;
+  --card:#FFFFFF;
+  --card-header:#EAEBF5;
+  --ink:#171A2B;
+  --mut:#5E6582;
+  --line:#D1D5E5;
+  --acc:#3B3DA8;
+  --acc-hover:#4D50BD;
+  --acc-light:#EEF0FB;
+  --on:#FFFFFF;
+  --warn:#D32F2F;
+  --warn-bg:#FDE8E8;
+  --success:#059669;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  transition:background .2s,color .2s;
+}
+
+.app{
+  display:grid;
+  grid-template-columns:400px 1fr;
+  gap:16px;
+  padding:16px;
+  max-width:1480px;
+  margin:0 auto;
+}
+@media(max-width:960px){
+  .app{grid-template-columns:1fr}
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--border-radius);
+  padding:14px;
+  margin-bottom:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+}
+.card-header-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+h1{font-size:20px;font-weight:700;margin:0 0 4px;color:#fff}
+[data-theme="light"] h1{color:var(--ink)}
+h2{
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--acc);
+  margin:0 0 10px;
+  font-weight:700;
+}
+.mut{color:var(--mut);font-size:12px}
+
+label{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  font-size:11px;
+  font-weight:600;
+  color:var(--mut);
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+input,select{
+  font:inherit;
+  color:var(--ink);
+  background:rgba(0,0,0,0.2);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:7px 9px;
+  min-width:0;
+  width:100%;
+  font-size:13px;
+  transition:border .15s,box-shadow .15s;
+}
+[data-theme="light"] input,[data-theme="light"] select{
+  background:#FAFBFD;
+}
+input:focus,select:focus{
+  outline:none;
+  border-color:var(--acc);
+  box-shadow:0 0 0 2px rgba(83,86,214,0.3);
+}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.g1{display:grid;gap:10px}
+
+button{
+  font:inherit;
+  font-weight:600;
+  font-size:13px;
+  border:0;
+  border-radius:6px;
+  padding:8px 14px;
+  cursor:pointer;
+  background:var(--acc);
+  color:var(--on);
+  transition:background .15s,opacity .15s,transform .05s;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+}
+button:hover{background:var(--acc-hover)}
+button:active{transform:scale(0.98)}
+button.s{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button.s:hover{background:rgba(255,255,255,0.06)}
+[data-theme="light"] button.s:hover{background:rgba(0,0,0,0.04)}
+button.x{
+  background:transparent;
+  color:var(--warn);
+  padding:4px 8px;
+  border:1px solid var(--line);
+  border-radius:5px;
+  font-size:12px;
+}
+button.x:hover{background:var(--warn-bg);border-color:var(--warn)}
+
+.row-item{
+  display:grid;
+  grid-template-columns:1fr 60px 70px 85px 32px;
+  gap:6px;
+  align-items:end;
+  margin-bottom:8px;
+  padding-bottom:8px;
+  border-bottom:1px dashed var(--line);
+}
+.row-item:last-child{border-bottom:none;margin-bottom:4px;padding-bottom:0}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+  background:var(--card);
+  padding:6px;
+  border-radius:8px;
+  border:1px solid var(--line);
+}
+.tabs button{
+  background:transparent;
+  color:var(--ink);
+  border:none;
+  padding:8px 16px;
+  border-radius:6px;
+  font-weight:600;
+}
+.tabs button.on{
+  background:var(--acc);
+  color:var(--on);
+  box-shadow:0 2px 6px rgba(0,0,0,0.25);
+}
+
+.sv{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  padding:7px 8px;
+  border-radius:6px;
+  margin-bottom:4px;
+  border:1px solid var(--line);
+  background:rgba(0,0,0,0.1);
+  font-size:13px;
+}
+.sv:hover{border-color:var(--acc)}
+#toast{position:fixed;bottom:24px;right:24px;background:#10B981;color:#fff;padding:10px 18px;border-radius:8px;font-weight:600;font-size:13px;box-shadow:0 6px 18px rgba(0,0,0,0.35);opacity:0;transform:translateY(12px);transition:all .25s ease;pointer-events:none;z-index:99999}
+#toast.show{opacity:1;transform:translateY(0)}
+#search_saved{background:rgba(0,0,0,0.2);margin-bottom:6px;border-color:var(--line);padding:7px 10px;font-size:12.5px}
+[data-theme="light"] #search_saved{background:#FAFBFD}
+summary{cursor:pointer;font-weight:600;color:var(--ink);padding:4px 0}
+.pg{margin-bottom:20px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.4);border-radius:2px}
+
+/* A4 Sheet Print and Preview */
+.sheet{
+  width:794px;
+  height:1122px;
+  background:#fff;
+  color:#111;
+  position:relative;
+  transform-origin:top left;
+  font-family:Arial,sans-serif;
+  font-size:12px;
+  overflow:hidden;
+}
+#saved{max-height:220px;overflow-y:auto;padding-right:2px}
+
+/* Top colored banner */
+.band{
+  position:absolute;
+  left:38px;
+  right:38px;
+  top:34px;
+  height:86px;
+  background:#4B4DB3;
+  clip-path:polygon(0 0, 100% 0, 93% 100%, 0 100%);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  gap:22px;
+  padding-left:22px;
+}
+.band .lg{width:64px;height:64px;flex-shrink:0}
+.band b{
+  font:700 52px/1 'Oswald',"Arial Narrow",sans-serif;
+  letter-spacing:0.5px;
+  white-space:nowrap;
+}
+.str{position:absolute;top:34px;right:30px;width:70px;height:86px}
+.str i{position:absolute;top:18px;width:15px;height:30px;background:#4B4DB3;transform:skewX(-35deg)}
+
+.rd{
+  position:absolute;
+  left:38px;
+  right:38px;
+  top:130px;
+  display:flex;
+  justify-content:space-between;
+  font-size:12px;
+  color:#333;
+}
+.body{position:absolute;left:38px;right:38px;top:158px}
+.wm{
+  position:absolute;
+  left:210px;
+  top:380px;
+  width:380px;
+  height:380px;
+  opacity:0.09;
+  pointer-events:none;
+}
+.bx{
+  border:2px solid #222;
+  text-align:center;
+  font:600 14px/1 'Oswald',"Arial Narrow",sans-serif;
+}
+.bx div{padding:7px;border-bottom:1.5px solid #222}
+.bx div:last-child{border-bottom:0}
+.bx.t{
+  font-size:22px;
+  font-weight:700;
+  text-decoration:underline;
+  padding:12px;
+  margin-top:6px;
+}
+
+table{border-collapse:collapse;width:100%;position:relative}
+td,th{border:1.5px solid #222;padding:4px 6px;text-align:center;font-size:11.5px}
+th,.k{font:600 14px/1.1 'Oswald',"Arial Narrow",sans-serif;text-transform:uppercase}.l{text-align:left}
+
+.inf{margin-top:12px}
+.inf td{height:33px;font-size:13px}
+.inf .k{font-size:17px}
+
+.it{margin-top:0}
+.it td{height:25px}
+.it .tot td{font:700 12px 'Oswald',Arial;border-top:2px solid #222}
+
+.tt{width:62%;margin-top:14px}
+.tt td{height:28px;text-align:left;font:600 13px 'Oswald',Arial;padding:4px 8px}
+.tt td+td{text-align:right;font-family:Arial,sans-serif}
+
+.sig{
+  margin-top:34px;
+  font:700 17px 'Oswald',Arial;
+  text-decoration:underline;
+}
+
+.ft{
+  position:absolute;
+  left:38px;
+  right:38px;
+  bottom:30px;
+  height:78px;
+  background:#4B4DB3;
+  clip-path:polygon(0 0, 40% 0, 36% 100%, 0 100%);
+}
+.ad{
+  position:absolute;
+  right:38px;
+  bottom:30px;
+  font-size:12.5px;
+  line-height:1.55;
+  display:flex;
+  gap:26px;
+  color:#222;
+}
+
+/* Print Setup */
+@page{
+  size:A4 portrait;
+  margin:0;
+}
+@media print{
+  html,body{
+    background:#fff !important;
+    color:#000 !important;
+    margin:0 !important;
+    padding:0 !important;
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+  .left,.tabs,.hint,.top-header{display:none !important}
+  .app{display:block !important;padding:0 !important;max-width:none !important}
+  .right{padding:0 !important;margin:0 !important}
+  #wrap{padding:0 !important;margin:0 !important}
+  .pg{
+    width:794px !important;
+    height:1122px !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:hidden !important;
+    box-shadow:none !important;
+    break-after:page !important;
+    page-break-after:always !important;
+  }
+  .pg:last-child{
+    break-after:avoid !important;
+    page-break-after:avoid !important;
+  }
+  .sheet{
+    transform:none !important;
+    left:0 !important;
+    top:0 !important;
+  }
+  #probe{display:none !important}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Left Side: Controls & Data Entry -->
+  <div class="left">
+    <div class="card">
+      <div class="card-header-bar">
+        <h1>Babar Traders Billing</h1>
+        <button class="s" id="theme-toggle" title="Toggle Theme" style="padding:4px 8px;font-size:12px">🌓</button>
+      </div>
+      <div class="mut">Ek hi dafa items likhein. Contractor Bill, Sale Tax Invoice aur Delivery Challan khud ba khud tayyar ho jayengay.</div>
+    </div>
+
+    <!-- Bill Details -->
+    <div class="card">
+      <h2>Bill Details</h2>
+      <div class="g2">
+        <label>Ser / Invoice No
+          <input id="no" placeholder="100">
+        </label>
+        <label>Date
+          <input id="date" type="date">
+        </label>
+        <label>PO No
+          <input id="po" list="pol" placeholder="e.g. 500" autocomplete="off">
+        </label>
+        <label>Ref No
+          <input id="ref" placeholder="Optional ref">
+        </label>
+      </div>
+      <div class="g1" style="margin-top:10px">
+        <label>To (Party Name)
+          <input id="to" list="tol" placeholder="Party Name / Customer" autocomplete="off">
+        </label>
+      </div>
+      <datalist id="pol"></datalist>
+      <datalist id="tol"></datalist>
+    </div>
+
+    <!-- Items -->
+    <div class="card">
+      <div class="card-header-bar" style="margin-bottom:6px">
+        <h2>Items List</h2>
+        <span class="mut" id="msg">0 items</span>
+      </div>
+      <div id="items"></div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+        <button class="s" id="add">➕ Add Item</button>
+      </div>
+      <div style="margin-top:12px;padding-top:8px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
+        <span class="mut">Total Amount:</span>
+        <b id="tt" style="font-size:18px;color:var(--acc)">0</b>
+      </div>
+    </div>
+
+    <!-- Saved Bills -->
+    <div class="card">
+      <div class="card-header-bar" style="margin-bottom:6px">
+        <h2>Saved Bills</h2>
+        <span class="mut" id="saved_stat" style="font-size:11px"></span>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        <button id="save" style="background:#2e7d32">💾 Save bill</button>
+        <button class="s" id="new">📄 New bill</button>
+        <button class="s" id="dl_master" title="Download Excel sheet of all saved bills" style="background:#1b5e20;color:#fff;border:none">📑 All Bills Sheet</button>
+        <button class="s" id="export_json" title="Export all bills to file" style="padding:6px 9px;font-size:12px">⬇ Backup</button>
+        <button class="s" id="import_btn" title="Import bills from file" style="padding:6px 9px;font-size:12px">⬆ Restore</button>
+        <input type="file" id="import_file" accept=".json" style="display:none">
+      </div>
+      <div>
+        <input id="search_saved" placeholder="🔍 Search by PO #, Invoice #, Party, or Item..." autocomplete="off">
+      </div>
+      <div id="saved"></div>
+      <p class="mut" style="margin:8px 0 0">Ye bills aapke browser/computer mein mehfooz rehte hain.</p>
+    </div>
+
+    <!-- Settings -->
+    <details class="card">
+      <summary>⚙️ Company, Bank and Logo Settings</summary>
+      <div class="g1" style="margin-top:12px">
+        <label>Company Name<input id="s_name"></label>
+        <label>Bank Name<input id="s_bank"></label>
+        <label>Account No<input id="s_acct"></label>
+        <label>Branch<input id="s_branch"></label>
+        <label>Address Line 1<input id="s_a1"></label>
+        <label>Address Line 2<input id="s_a2"></label>
+        <label>Address Line 3<input id="s_a3"></label>
+        <div class="g2">
+          <label>Phone<input id="s_ph"></label>
+          <label>Mobile<input id="s_mb"></label>
+        </div>
+        <label>Sale Tax Rate (%)<input id="s_tax" type="number" min="0" step="0.5"></label>
+        <label>Upload Logo (PNG/JPG)<input id="s_logo" type="file" accept="image/*"></label>
+        <button class="s" id="s_clr" style="margin-top:4px">Use Original BT Logo</button>
+      </div>
+    </details>
+  </div>
+
+  <!-- Right Side: Preview & Print -->
+  <div class="right">
+    <div class="tabs">
+      <button data-k="bill" class="on">Contractor Bill</button>
+      <button data-k="inv">Sale Tax Invoice</button>
+      <button data-k="dc">Delivery Challan</button>
+      <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
+        <button id="dl_excel" style="background:#2e7d32" title="Download Excel sheet for this bill">📊 Excel (.xls)</button>
+        <button id="dl_word" style="background:#1976d2" title="Download Word file for this bill">📄 Word (.doc)</button>
+        <button id="print" style="background:#4B4DB3" title="Auto-saves and opens Print/PDF dialog">🖨️ Print / Save as PDF</button>
+      </div>
+    </div>
+    <div id="toast"></div>
+
+    <p class="mut hint" style="margin:0 0 12px 4px;font-size:12.5px">
+      💡 Rate likhein (with sales tax included). System quantity se multiply karega aur Sale Tax Invoice par sales tax alag calculate karega. Items zyada honay par doosra page automatic ban jaye ga.
+    </p>
+
+    <!-- Pages Container -->
+    <div id="wrap"><div id="pages"></div></div>
+    <!-- Offscreen probe for measurement -->
+    <div id="probe" class="sheet" style="position:absolute;left:-9999px;top:0" aria-hidden="true"></div>
+  </div>
+</div>
+
+<script>
+const KEY = 'bt_billing_v2';
+const today = () => {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+};
+
+const DEF = {
+  s: {
+    name: 'BABAR TRADERS',
+    bank: 'JS BANK LIMITED',
+    acct: 'PK49JSBL9015000002475713',
+    branch: 'Bank Road Branch Rawalpindi -9015',
+    a1: 'Haider Street # 40, House # 6,',
+    a2: 'Hafeez Road Masoom Gunj.',
+    a3: 'Bilal Gunj Lahore.',
+    ph: '042-37157728,',
+    mb: '0333-4636252',
+    tax: 18,
+    logo: ''
+  },
+  b: {
+    no: '100',
+    date: today(),
+    po: '500',
+    ref: '',
+    to: '',
+    items: [
+      { d: 'cylandar', u: 'NOS', q: 2, r: 300 },
+      { d: 'gass', u: 'NOS', q: 25, r: 2 }
+    ]
+  },
+  saved: [
+    {
+      no: '100',
+      date: today(),
+      po: '500',
+      ref: '',
+      to: '',
+      items: [
+        { d: 'cylandar', u: 'NOS', q: 2, r: 300 },
+        { d: 'gass', u: 'NOS', q: 25, r: 2 }
+      ]
+    },
+    {
+      no: '001',
+      date: today(),
+      po: '',
+      ref: '',
+      to: '',
+      items: [
+        { d: '', u: 'NOS', q: '', r: '' }
+      ]
+    }
+  ]
+};
+
+let st;
+try {
+  st = JSON.parse(localStorage.getItem(KEY));
+} catch(e) {
+  st = null;
+}
+if (!st || !st.s || !st.b) {
+  st = JSON.parse(JSON.stringify(DEF));
+}
+st.saved = (st.saved && st.saved.length) ? st.saved : JSON.parse(JSON.stringify(DEF.saved));
+
+// Fallback recovery from earlier versions if any
+try {
+  const o = JSON.parse(localStorage.getItem('bt_billing_v1'));
+  if (o && o.saved && !st.saved.length) st.saved = o.saved;
+} catch(e) {}
+
+let tab = 'inv'; // default tab set to Sale Tax Invoice as shown in user screenshot
+const $ = id => document.getElementById(id);
+const s = () => st.s;
+const b = () => st.b;
+
+function persist() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(st));
+  } catch(e) {}
+}
+
+const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+}[c]));
+
+const money = n => {
+  if (n === '' || n === null || isNaN(n)) return '';
+  const num = Number(n);
+  return Number.isInteger(num) ? String(num) : num.toFixed(2);
+};
+
+const dmy = iso => {
+  if (!iso) return '';
+  const parts = iso.split('-');
+  if (parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
+  return iso;
+};
+
+function calc() {
+  let total = 0;
+  const rows = b().items.filter(i => i.d || +i.q || +i.r).map(i => {
+    const q = +i.q || 0;
+    const r = +i.r || 0;
+    const a = Math.round(q * r * 100) / 100;
+    total += a;
+    return { d: i.d, u: i.u, q, r, a };
+  });
+  total = Math.round(total * 100) / 100;
+  const t = +s().tax || 0;
+  // Sale tax inclusive calculation:
+  // ex = total / (1 + tax%)
+  const ex = Math.round((total / (1 + t / 100)) * 100) / 100;
+  const vat = Math.round((total - ex) * 100) / 100;
+  return { rows, total, ex, vat, t };
+}
+
+function logo(c, big) {
+  if (s().logo) {
+    return `<img src="${esc(s().logo)}" alt="" style="width:100%;height:100%;object-fit:contain">`;
+  }
+  return `<svg viewBox="0 0 100 100" width="100%" height="100%">
+    <path d="M12 50Q50 -8 88 50Q50 108 12 50Z" fill="none" stroke="${c}" stroke-width="${big ? 3 : 4}"/>
+    <path d="M2 20Q30 42 12 50Q30 58 2 80M98 20Q70 42 88 50Q70 58 98 80" fill="none" stroke="${c}" stroke-width="${big ? 3 : 4}"/>
+    <text x="50" y="58" text-anchor="middle" font-family="Georgia,serif" font-size="26" font-weight="bold" fill="${c}">BT</text>
+  </svg>`;
+}
+
+const LIM = 1010;
+let RH = 25;
+
+function head(k, pg, pgs) {
+  const S = s(), B = b();
+  const title = { bill: 'CONTRACTOR BILL', inv: 'SALE TAX INVOICE', dc: 'DELIVERY CHALLAN' }[k];
+  const lab = k === 'inv' ? 'INVOICE NO' : 'SER NO';
+  let top = '';
+  if (k === 'bill') {
+    top = `<div class="bx"><div>${esc(S.bank)}</div><div>Account No: ${esc(S.acct)}</div><div>${esc(S.branch)}</div></div>`;
+  }
+  top += `<div class="bx t">${title}</div>`;
+
+  const info = `<table class="inf">
+    <tr>
+      <td class="k l" style="width:14%">${lab}</td>
+      <td style="width:36%"></td>
+      <td class="k" style="width:15%"></td>
+      <td class="k" style="font-size:20px;width:35%">${esc(B.no)}</td>
+    </tr>
+    <tr>
+      <td class="k l" style="width:14%">TO;</td>
+      <td class="k l" style="font-size:14px;padding-left:8px">${esc(B.to)}</td>
+      <td class="k" style="width:15%">PO NO</td>
+      <td class="k" style="font-size:18px">${esc(B.po)}</td>
+    </tr>
+  </table>`;
+
+  return `
+    <div class="wm">${logo('#4B4DB3', 1)}</div>
+    <div class="band">
+      <div class="lg">${logo('#fff')}</div>
+      <b>${esc(S.name)}</b>
+    </div>
+    <div class="str"><i style="left:8px"></i><i style="left:30px"></i></div>
+    <div class="rd">
+      <span>Ref No. ${B.ref ? esc(B.ref) : '.........................'}</span>
+      <span>${pgs > 1 ? 'Page ' + pg + ' of ' + pgs : ''}</span>
+      <span>Date: ${B.date ? dmy(B.date) : '.........................'}</span>
+    </div>
+    <div class="body">${top}${info}
+  `;
+}
+
+function tbl(k, rows, i0, fill, last, C) {
+  const dc = k === 'dc';
+  let tr = '';
+  rows.forEach((r, i) => {
+    tr += `<tr>
+      <td>${i0 + i + 1}</td>
+      <td class="l">${esc(r.d)}</td>
+      <td>${esc(r.u)}</td>
+      <td>${money(r.q)}</td>
+      ${dc ? '' : `<td>${money(r.r)}</td><td>${money(r.a)}</td>`}
+    </tr>`;
+  });
+  for (let i = 0; i < fill; i++) {
+    tr += `<tr>
+      <td>&nbsp;</td><td></td><td></td><td></td>
+      ${dc ? '' : '<td></td><td></td>'}
+    </tr>`;
+  }
+  return `
+    <table class="it">
+      <thead>
+        <tr>
+          <th style="width:8%">S.NO</th>
+          <th class="l">DESCRIPTION</th>
+          <th style="width:9%">U/I</th>
+          <th style="width:9%">QTY</th>
+          ${dc ? '' : '<th style="width:12%">RATE</th><th style="width:21%">TOTAL AMOUNT</th>'}
+        </tr>
+      </thead>
+      <tbody>
+        ${tr}
+        ${last && k === 'bill' ? `
+        <tr class="tot">
+          <td colspan="5" class="l">TOTAL AMOUNT</td>
+          <td>${money(C.total)}</td>
+        </tr>` : ''}
+      </tbody>
+    </table>
+  `;
+}
+
+function endb(k, C) {
+  let taxBlock = '';
+  if (k === 'inv') {
+    taxBlock = `
+      <table class="tt">
+        <tr><td>TOTAL AMOUNT</td><td>${money(C.total)}</td></tr>
+        <tr><td>SALE TAX ${C.t}%</td><td>${money(C.vat)}</td></tr>
+        <tr><td>EXCLUDING AMOUNT</td><td>${money(C.ex)}</td></tr>
+        <tr><td>GRAND TOTAL</td><td>${money(C.total)}</td></tr>
+      </table>
+    `;
+  }
+  return taxBlock + `<div class="sig">SIGNATURE &amp; STAMP</div>`;
+}
+
+function foot() {
+  const S = s();
+  return `
+    </div>
+    <div class="ft"></div>
+    <div class="ad">
+      <div>${esc(S.a1)}<br>${esc(S.a2)}<br>${esc(S.a3)}</div>
+      <div>${esc(S.ph)}<br>${esc(S.mb)}</div>
+    </div>
+  `;
+}
+
+function pageHTML(k, C, rows, i0, fill, last, pg, pgs) {
+  return head(k, pg, pgs) + tbl(k, rows, i0, fill, last, C) + (last ? endb(k, C) : '') + foot();
+}
+
+function meas(k, C) {
+  const p = $('probe');
+  let top;
+  const put = (fill, last) => {
+    p.innerHTML = pageHTML(k, C, [], 0, fill, last, 1, 1);
+    top = p.getBoundingClientRect().top;
+  };
+  put(0, false);
+  const b0 = p.querySelector('.it').getBoundingClientRect().bottom - top;
+  put(1, false);
+  RH = p.querySelector('.it').getBoundingClientRect().bottom - top - b0;
+  if (!RH || RH < 15) RH = 25;
+  put(0, true);
+  const sg = p.querySelector('.sig').getBoundingClientRect().bottom - top;
+  return {
+    cc: Math.max(1, Math.floor((LIM - b0) / RH)),
+    ce: Math.max(1, Math.floor((LIM - sg) / RH))
+  };
+}
+
+const wt = r => 1 + 0.52 * (Math.ceil(Math.max(1, String(r.d || '').length) / 45) - 1);
+
+function paginate(k, C) {
+  const m = meas(k, C);
+  const w = C.rows.map(wt);
+  const pg = [];
+  let cur = [], u = 0;
+
+  C.rows.forEach((r, i) => {
+    if (u + w[i] > m.cc) {
+      pg.push({ a: cur, u });
+      cur = [];
+      u = 0;
+    }
+    cur.push(i);
+    u += w[i];
+  });
+  pg.push({ a: cur, u });
+
+  const L = pg[pg.length - 1];
+  if (L.u > m.ce) {
+    if (L.a.length > 1) {
+      const li = L.a.pop();
+      pg.push({ a: [li], u: w[li] });
+    } else {
+      pg.push({ a: [], u: 0 });
+    }
+  }
+
+  return pg.map((p, j) => ({
+    ...p,
+    fill: j === pg.length - 1 ? Math.max(0, Math.floor(m.ce - p.u)) : Math.max(0, Math.floor(m.cc - p.u))
+  }));
+}
+
+function fit() {
+  const wrap = $('wrap');
+  if (!wrap) return;
+  const sc = Math.min(1, Math.max(0.3, (wrap.clientWidth - 10) / 794));
+  document.querySelectorAll('.pg').forEach(e => {
+    e.style.width = (794 * sc) + 'px';
+    e.style.height = (1122 * sc) + 'px';
+  });
+  document.querySelectorAll('#pages .sheet').forEach(e => {
+    e.style.transform = `scale(${sc})`;
+  });
+}
+
+function render() {
+  const C = calc();
+  const pg = paginate(tab, C);
+  $('pages').innerHTML = pg.map((p, j) =>
+    `<div class="pg"><div class="sheet">${pageHTML(tab, C, p.a.map(i => C.rows[i]), p.a.length ? p.a[0] : C.rows.length, p.fill, j === pg.length - 1, j + 1, pg.length)}</div></div>`
+  ).join('');
+  $('tt').textContent = money(C.total);
+  fit();
+}
+
+function items() {
+  $('items').innerHTML = b().items.map((i, x) => `
+    <div class="row-item">
+      <label>Description
+        <input data-i="${x}" data-f="d" placeholder="Enter item name / detail" value="${esc(i.d)}">
+      </label>
+      <label>U/I
+        <input data-i="${x}" data-f="u" value="${esc(i.u || 'NOS')}">
+      </label>
+      <label>Qty
+        <input data-i="${x}" data-f="q" type="number" min="0" step="any" value="${esc(i.q)}">
+      </label>
+      <label>Rate
+        <input data-i="${x}" data-f="r" type="number" min="0" step="any" value="${esc(i.r)}">
+      </label>
+      <button class="x" data-del="${x}" title="Remove item">&times;</button>
+    </div>
+  `).join('');
+  $('msg').textContent = b().items.length + (b().items.length === 1 ? ' item' : ' items');
+}
+
+function fields() {
+  ['no', 'date', 'po', 'ref', 'to'].forEach(k => {
+    if ($(k)) $(k).value = b()[k] || '';
+  });
+  Object.keys(DEF.s).forEach(k => {
+    if (k !== 'logo' && $('s_' + k)) {
+      $('s_' + k).value = s()[k] != null ? s()[k] : '';
+    }
+  });
+}
+
+let searchQ = '';
+
+function showToast(msg) {
+  const t = $('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tm);
+  t._tm = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function autoSaveBill(silent) {
+  const cur = JSON.parse(JSON.stringify(b()));
+  if (!cur.no && (!cur.items || !cur.items.some(i => i.d || +i.q || +i.r))) return;
+  const k = st.saved.findIndex(x => x.no === cur.no && cur.no !== '');
+  if (k >= 0) {
+    st.saved[k] = cur;
+  } else {
+    st.saved.unshift(cur);
+  }
+  persist();
+  saved();
+  if (!silent) showToast(`💾 Bill #${cur.no || ''} mehfooz (Saved) ho gaya!`);
+}
+
+function lists() {
+  const u = a => [...new Set(a.filter(Boolean))].map(v => `<option value="${esc(v)}">`).join('');
+  $('pol').innerHTML = u(st.saved.map(x => x.po));
+  $('tol').innerHTML = u(st.saved.map(x => x.to));
+}
+
+function saved() {
+  lists();
+  const q = searchQ.trim().toLowerCase();
+  const filtered = q
+    ? st.saved.filter(x => {
+        const po = String(x.po || '').toLowerCase();
+        const no = String(x.no || '').toLowerCase();
+        const to = String(x.to || '').toLowerCase();
+        const ref = String(x.ref || '').toLowerCase();
+        const hasItem = (x.items || []).some(it => String(it.d || '').toLowerCase().includes(q));
+        return po.includes(q) || no.includes(q) || to.includes(q) || ref.includes(q) || hasItem;
+      })
+    : st.saved;
+
+  $('saved_stat').textContent = q
+    ? `${filtered.length} of ${st.saved.length} bills`
+    : `${st.saved.length} bills`;
+
+  if (!filtered.length) {
+    $('saved').innerHTML = q
+      ? `<span class="mut" style="font-size:12px;padding:8px 0;display:block">Koi bill nahi mila: "${esc(searchQ)}"</span>`
+      : '<span class="mut" style="font-size:12px;padding:4px 0;display:block">No saved bills yet.</span>';
+    return;
+  }
+
+  $('saved').innerHTML = filtered.map((x) => {
+    const realIdx = st.saved.indexOf(x);
+    return `
+      <div class="sv">
+        <span><b>#${esc(x.no || '---')}</b> &middot; PO: <b style="color:var(--acc)">${esc(x.po || '-')}</b> &middot; ${esc((x.to || 'No Party').slice(0, 16))}</span>
+        <span>
+          <button class="s" data-load="${realIdx}" style="padding:4px 8px;font-size:11px">Open</button>
+          <button class="x" data-rm="${realIdx}" title="Delete" style="padding:3px 6px;font-size:11px">&times;</button>
+        </span>
+      </div>
+    `;
+  }).join('');
+}
+
+function downloadExcel() {
+  autoSaveBill(true);
+  const C = calc();
+  const B = b();
+  const S = s();
+  const title = { bill: 'CONTRACTOR BILL', inv: 'SALE TAX INVOICE', dc: 'DELIVERY CHALLAN' }[tab];
+  const dc = tab === 'dc';
+
+  let html = `
+  <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+  <head>
+    <meta charset="utf-8">
+    <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>${title}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+    <style>
+      body { font-family: Arial, sans-serif; font-size: 11pt; }
+      .brand { font-size: 20pt; font-weight: bold; color: #4B4DB3; text-align: center; height: 35px; }
+      .addr { font-size: 10pt; color: #333; text-align: center; }
+      .doc-title { font-size: 14pt; font-weight: bold; text-align: center; text-decoration: underline; height: 28px; }
+      th { background: #4B4DB3; color: #FFFFFF; font-weight: bold; border: 1px solid #000; text-align: center; padding: 6px; }
+      td { border: 1px solid #000; padding: 5px; }
+      .meta-lbl { font-weight: bold; background: #f2f2f2; }
+      .num { mso-number-format:"\#\,\#\#0\.00"; text-align: right; }
+      .bold { font-weight: bold; }
+    </style>
+  </head>
+  <body>
+    <table>
+      <tr><td colspan="6" class="brand">${esc(S.name)}</td></tr>
+      <tr><td colspan="6" class="addr">${esc(S.a1)} ${esc(S.a2)} ${esc(S.a3)} | Ph: ${esc(S.ph)} Mb: ${esc(S.mb)}</td></tr>
+      <tr><td colspan="6"></td></tr>
+      <tr><td colspan="6" class="doc-title">${title}</td></tr>
+      <tr><td colspan="6"></td></tr>
+      <tr>
+        <td class="meta-lbl">INVOICE / SER NO:</td><td>${esc(B.no)}</td>
+        <td class="meta-lbl">DATE:</td><td>${B.date ? dmy(B.date) : ''}</td>
+        <td class="meta-lbl">REF NO:</td><td>${esc(B.ref)}</td>
+      </tr>
+      <tr>
+        <td class="meta-lbl">TO (PARTY):</td><td colspan="3">${esc(B.to)}</td>
+        <td class="meta-lbl">PO NO:</td><td class="bold">${esc(B.po)}</td>
+      </tr>
+      <tr><td colspan="6"></td></tr>
+      <tr>
+        <th style="width:50px">S.NO</th>
+        <th style="width:260px">DESCRIPTION</th>
+        <th style="width:70px">U/I</th>
+        <th style="width:70px">QTY</th>
+        ${dc ? '' : '<th style="width:100px">RATE</th><th style="width:130px">TOTAL AMOUNT</th>'}
+      </tr>
+      ${C.rows.map((r, i) => `
+        <tr>
+          <td style="text-align:center">${i + 1}</td>
+          <td>${esc(r.d)}</td>
+          <td style="text-align:center">${esc(r.u)}</td>
+          <td class="num">${r.q}</td>
+          ${dc ? '' : `<td class="num">${r.r}</td><td class="num bold">${r.a}</td>`}
+        </tr>
+      `).join('')}
+      ${tab === 'bill' ? `
+        <tr>
+          <td colspan="5" class="bold" style="text-align:right">TOTAL AMOUNT:</td>
+          <td class="num bold">${C.total}</td>
+        </tr>
+      ` : ''}
+      ${tab === 'inv' ? `
+        <tr><td colspan="6"></td></tr>
+        <tr>
+          <td colspan="4" rowspan="4" style="vertical-align:bottom; border:none; padding:10px;"><b>SIGNATURE &amp; STAMP</b></td>
+          <td class="bold">TOTAL AMOUNT</td><td class="num bold">${C.total}</td>
+        </tr>
+        <tr>
+          <td class="bold">SALE TAX ${C.t}%</td><td class="num bold">${C.vat}</td>
+        </tr>
+        <tr>
+          <td class="bold">EXCLUDING AMOUNT</td><td class="num bold">${C.ex}</td>
+        </tr>
+        <tr>
+          <td class="bold" style="background:#e8eaf6">GRAND TOTAL</td><td class="num bold" style="background:#e8eaf6">${C.total}</td>
+        </tr>
+      ` : ''}
+    </table>
+  </body>
+  </html>
+  `;
+  const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Babar_Traders_${title.replace(/\s+/g,'_')}_${B.no || 'bill'}_PO_${B.po || '0'}.xls`;
+  a.click();
+  showToast('📊 Excel sheet download ho gayi!');
+}
+
+function downloadWord() {
+  autoSaveBill(true);
+  const C = calc();
+  const B = b();
+  const S = s();
+  const title = { bill: 'CONTRACTOR BILL', inv: 'SALE TAX INVOICE', dc: 'DELIVERY CHALLAN' }[tab];
+  const lab = tab === 'inv' ? 'INVOICE NO' : 'SER NO';
+  const dc = tab === 'dc';
+
+  let html = `
+  <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+  <head>
+    <meta charset="utf-8">
+    <title>${title} - ${esc(B.no)}</title>
+    <style>
+      @page { size: 21cm 29.7cm; margin: 1.5cm; }
+      body { font-family: Arial, sans-serif; font-size: 11pt; color: #111; }
+      .band { background: #4B4DB3; color: #fff; padding: 12px 18px; font-size: 24pt; font-weight: bold; text-align: center; }
+      .box-title { border: 2px solid #000; text-align: center; font-size: 14pt; font-weight: bold; padding: 6px; margin: 12px 0; text-decoration: underline; }
+      table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+      th { border: 1.5px solid #000; background: #f2f2f2; padding: 6px; font-size: 10pt; font-weight: bold; text-align: center; }
+      td { border: 1.5px solid #000; padding: 5px 6px; font-size: 10pt; }
+      .center { text-align: center; }
+      .right { text-align: right; }
+      .bold { font-weight: bold; }
+      .footer { margin-top: 30px; border-top: 2px solid #4B4DB3; padding-top: 10px; font-size: 9.5pt; color: #333; }
+    </style>
+  </head>
+  <body>
+    <div class="band">${esc(S.name)}</div>
+    <table style="border:none; margin-top:8px;">
+      <tr style="border:none;">
+        <td style="border:none; width:33%;">Ref No: <b>${esc(B.ref || '----------------')}</b></td>
+        <td style="border:none; width:33%; text-align:center;"></td>
+        <td style="border:none; width:33%; text-align:right;">Date: <b>${B.date ? dmy(B.date) : '----------------'}</b></td>
+      </tr>
+    </table>
+
+    <div class="box-title">${title}</div>
+
+    <table>
+      <tr>
+        <td class="bold" style="width:16%;">${lab}</td>
+        <td style="width:34%;"></td>
+        <td class="bold" style="width:16%;"></td>
+        <td class="bold center" style="font-size:13pt; width:34%;">${esc(B.no)}</td>
+      </tr>
+      <tr>
+        <td class="bold">TO:</td>
+        <td class="bold">${esc(B.to)}</td>
+        <td class="bold center">PO NO</td>
+        <td class="bold center" style="font-size:12pt;">${esc(B.po)}</td>
+      </tr>
+    </table>
+
+    <table style="margin-top:12px;">
+      <thead>
+        <tr>
+          <th style="width:8%;">S.NO</th>
+          <th>DESCRIPTION</th>
+          <th style="width:10%;">U/I</th>
+          <th style="width:10%;">QTY</th>
+          ${dc ? '' : '<th style="width:14%;">RATE</th><th style="width:20%;">TOTAL AMOUNT</th>'}
+        </tr>
+      </thead>
+      <tbody>
+        ${C.rows.map((r, i) => `
+          <tr>
+            <td class="center">${i + 1}</td>
+            <td>${esc(r.d)}</td>
+            <td class="center">${esc(r.u)}</td>
+            <td class="right">${money(r.q)}</td>
+            ${dc ? '' : `<td class="right">${money(r.r)}</td><td class="right bold">${money(r.a)}</td>`}
+          </tr>
+        `).join('')}
+        ${tab === 'bill' ? `
+          <tr>
+            <td colspan="5" class="bold right">TOTAL AMOUNT</td>
+            <td class="right bold">${money(C.total)}</td>
+          </tr>
+        ` : ''}
+      </tbody>
+    </table>
+
+    ${tab === 'inv' ? `
+      <table style="width:62%; margin-top:12px;">
+        <tr><td class="bold">TOTAL AMOUNT</td><td class="right bold">${money(C.total)}</td></tr>
+        <tr><td class="bold">SALE TAX ${C.t}%</td><td class="right bold">${money(C.vat)}</td></tr>
+        <tr><td class="bold">EXCLUDING AMOUNT</td><td class="right bold">${money(C.ex)}</td></tr>
+        <tr><td class="bold" style="background:#eee;">GRAND TOTAL</td><td class="right bold" style="background:#eee;">${money(C.total)}</td></tr>
+      </table>
+    ` : ''}
+
+    <div style="margin-top:28px; font-size:12pt; font-weight:bold; text-decoration:underline;">
+      SIGNATURE &amp; STAMP
+    </div>
+
+    <div class="footer">
+      <table style="border:none;">
+        <tr style="border:none;">
+          <td style="border:none;">
+            ${esc(S.a1)}<br>${esc(S.a2)}<br>${esc(S.a3)}
+          </td>
+          <td style="border:none; text-align:right;">
+            Phone: ${esc(S.ph)}<br>Mobile: ${esc(S.mb)}
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+  </html>
+  `;
+  const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Babar_Traders_${title.replace(/\s+/g,'_')}_${B.no || 'bill'}.doc`;
+  a.click();
+  showToast('📄 Word document download ho gaya!');
+}
+
+function downloadMasterSheet() {
+  if (!st.saved.length) {
+    alert('Abhi tak koi bill save nahi hai!');
+    return;
+  }
+  let html = `
+  <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+  <head>
+    <meta charset="utf-8">
+    <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>All Bills Record</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+    <style>
+      body { font-family: Arial, sans-serif; }
+      th { background: #4B4DB3; color: #FFFFFF; font-weight: bold; border: 1px solid #000; text-align: center; padding: 6px; }
+      td { border: 1px solid #000; padding: 5px; }
+      .num { mso-number-format:"\#\,\#\#0\.00"; text-align: right; }
+      .bold { font-weight: bold; }
+    </style>
+  </head>
+  <body>
+    <h2>BABAR TRADERS - ALL SAVED BILLS MASTER REGISTER</h2>
+    <table>
+      <tr>
+        <th>SR#</th>
+        <th>INVOICE NO</th>
+        <th>DATE</th>
+        <th>PO NO</th>
+        <th>PARTY NAME (TO)</th>
+        <th>REF NO</th>
+        <th>ITEMS COUNT</th>
+        <th>TOTAL AMOUNT</th>
+        <th>SALES TAX</th>
+        <th>EXCLUDING AMOUNT</th>
+        <th>GRAND TOTAL</th>
+      </tr>
+      ${st.saved.map((x, i) => {
+        let tot = 0;
+        (x.items || []).forEach(it => { tot += (+it.q || 0) * (+it.r || 0); });
+        tot = Math.round(tot * 100) / 100;
+        const t = +s().tax || 18;
+        const ex = Math.round((tot / (1 + t / 100)) * 100) / 100;
+        const vat = Math.round((tot - ex) * 100) / 100;
+        return `
+          <tr>
+            <td style="text-align:center">${i + 1}</td>
+            <td class="bold" style="text-align:center">${esc(x.no)}</td>
+            <td style="text-align:center">${esc(x.date ? dmy(x.date) : '')}</td>
+            <td class="bold" style="text-align:center">${esc(x.po)}</td>
+            <td>${esc(x.to)}</td>
+            <td>${esc(x.ref)}</td>
+            <td style="text-align:center">${(x.items || []).length}</td>
+            <td class="num">${tot}</td>
+            <td class="num">${vat}</td>
+            <td class="num">${ex}</td>
+            <td class="num bold">${tot}</td>
+          </tr>
+        `;
+      }).join('')}
+    </table>
+  </body>
+  </html>
+  `;
+  const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `Babar_Traders_Master_Register_${today()}.xls`;
+  a.click();
+  showToast('📑 Master Excel Register download ho gaya!');
+}
+
+// Event Listeners
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'search_saved') {
+    searchQ = t.value;
+    saved();
+    return;
+  }
+  if (t.dataset.i !== undefined) {
+    b().items[+t.dataset.i][t.dataset.f] = t.value;
+  } else if (['no', 'date', 'po', 'ref', 'to'].includes(t.id)) {
+    b()[t.id] = t.value;
+  } else if (t.id.startsWith('s_') && t.type !== 'file') {
+    s()[t.id.slice(2)] = t.id === 's_tax' ? +t.value : t.value;
+  } else {
+    return;
+  }
+  persist();
+  render();
+});
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('button');
+  if (!t) return;
+
+  if (t.dataset.del !== undefined) {
+    b().items.splice(+t.dataset.del, 1);
+    if (!b().items.length) {
+      b().items.push({ d: '', u: 'NOS', q: '', r: '' });
+    }
+    items();
+    persist();
+    render();
+  } else if (t.dataset.k) {
+    tab = t.dataset.k;
+    document.querySelectorAll('.tabs [data-k]').forEach(x => x.classList.toggle('on', x === t));
+    render();
+  } else if (t.dataset.load !== undefined) {
+    st.b = JSON.parse(JSON.stringify(st.saved[+t.dataset.load]));
+    fields();
+    items();
+    persist();
+    render();
+    showToast(`Bill #${st.b.no || ''} load ho gaya!`);
+  } else if (t.dataset.rm !== undefined) {
+    if (confirm('Kya aap is bill ko delete karna chahte hain?')) {
+      st.saved.splice(+t.dataset.rm, 1);
+      persist();
+      saved();
+      showToast('Bill delete ho gaya!');
+    }
+  } else if (t.id === 'add') {
+    b().items.push({ d: '', u: 'NOS', q: '', r: '' });
+    items();
+    persist();
+    render();
+    const l = document.querySelectorAll('[data-f=d]');
+    if (l.length) l[l.length - 1].focus();
+  } else if (t.id === 'print') {
+    autoSaveBill(false);
+    window.print();
+  } else if (t.id === 'dl_excel') {
+    downloadExcel();
+  } else if (t.id === 'dl_word') {
+    downloadWord();
+  } else if (t.id === 'dl_master') {
+    downloadMasterSheet();
+  } else if (t.id === 'save') {
+    autoSaveBill(false);
+  } else if (t.id === 'new') {
+    const m = String(b().no || '0').match(/^(.*?)(\d+)$/);
+    b().no = m ? m[1] + String(+m[2] + 1).padStart(m[2].length, '0') : '101';
+    b().items = [{ d: '', u: 'NOS', q: '', r: '' }];
+    b().ref = '';
+    b().po = '';
+    b().to = '';
+    b().date = today();
+    fields();
+    items();
+    persist();
+    render();
+    showToast(`Naya Bill #${b().no} tayyar hai!`);
+  } else if (t.id === 's_clr') {
+    s().logo = '';
+    persist();
+    render();
+  } else if (t.id === 'theme-toggle') {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('bt_theme', next); } catch(e){}
+  } else if (t.id === 'export_json') {
+    const blob = new Blob([JSON.stringify(st, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `Babar_Traders_Backup_${today()}.json`;
+    a.click();
+    showToast('Backup file download ho gayi!');
+  } else if (t.id === 'import_btn') {
+    $('import_file').click();
+  }
+});
+
+$('import_file').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (data && data.s && data.b) {
+        st = data;
+        persist();
+        fields();
+        items();
+        saved();
+        render();
+        alert('Data successfully import ho gaya!');
+      } else {
+        alert('Invalid backup file!');
+      }
+    } catch(err) {
+      alert('File parhne mein masla aya: ' + err.message);
+    }
+  };
+  r.readAsText(f);
+});
+
+$('s_logo').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    s().logo = r.result;
+    persist();
+    render();
+  };
+  r.readAsDataURL(f);
+});
+
+// Setup theme from preference
+try {
+  const savedTheme = localStorage.getItem('bt_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+} catch(e) {}
+
+window.addEventListener('resize', fit);
+window.addEventListener('afterprint', fit);
+
+document.addEventListener('keydown', e => {
+  const t = e.target;
+  if (e.key === 'Enter' && t.dataset && t.dataset.f === 'r' && +t.dataset.i === b().items.length - 1) {
+    e.preventDefault();
+    $('add').click();
+  }
+});
+
+// Initial tab selection in UI (set to Sale Tax Invoice to match user screenshot)
+document.querySelectorAll('.tabs [data-k]').forEach(x => {
+  x.classList.toggle('on', x.dataset.k === tab);
+});
+
+// Init
+fields();
+items();
+saved();
+render();
+</script>
+</body>
+</html>
