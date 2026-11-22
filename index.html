@@ -311,11 +311,12 @@ th,.k{font:600 14px/1.1 'Oswald',"Arial Narrow",sans-serif;text-transform:upperc
 .it td{height:25px}
 .it .tot td{font:700 12px 'Oswald',Arial;border-top:2px solid #222}
 
-.tt{width:62%;margin-top:14px}
+.tt{width:56%;margin-top:14px;margin-left:auto;margin-bottom:12px}
 .tt td{height:28px;text-align:left;font:600 13px 'Oswald',Arial;padding:4px 8px}
 .tt td+td{text-align:right;font-family:Arial,sans-serif}
 
 .sig{
+  clear:both;
   margin-top:34px;
   font:700 17px 'Oswald',Arial;
   text-decoration:underline;
@@ -446,7 +447,8 @@ th,.k{font:600 14px/1.1 'Oswald',"Arial Narrow",sans-serif;text-transform:upperc
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
         <button id="save" style="background:#2e7d32">💾 Save bill</button>
         <button class="s" id="new">📄 New bill</button>
-        <button class="s" id="dl_master" title="Download Excel sheet of all saved bills" style="background:#1b5e20;color:#fff;border:none">📑 All Bills Sheet</button>
+        <button class="s" id="dl_po_state" title="Download Complete PO State Excel Database" style="background:#0d47a1;color:#fff;border:none">📊 PO State (Excel)</button>
+        <button class="s" id="dl_master" title="Download Excel summary of all bills" style="background:#1b5e20;color:#fff;border:none">📑 All Bills Sheet</button>
         <button class="s" id="export_json" title="Export all bills to file" style="padding:6px 9px;font-size:12px">⬇ Backup</button>
         <button class="s" id="import_btn" title="Import bills from file" style="padding:6px 9px;font-size:12px">⬆ Restore</button>
         <input type="file" id="import_file" accept=".json" style="display:none">
@@ -486,6 +488,7 @@ th,.k{font:600 14px/1.1 'Oswald',"Arial Narrow",sans-serif;text-transform:upperc
       <button data-k="bill" class="on">Contractor Bill</button>
       <button data-k="inv">Sale Tax Invoice</button>
       <button data-k="dc">Delivery Challan</button>
+      <button data-k="insp">Inspection Note</button>
       <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap">
         <button id="dl_excel" style="background:#2e7d32" title="Download Excel sheet for this bill">📊 Excel (.xls)</button>
         <button id="dl_word" style="background:#1976d2" title="Download Word file for this bill">📄 Word (.doc)</button>
@@ -641,8 +644,8 @@ let RH = 25;
 
 function head(k, pg, pgs) {
   const S = s(), B = b();
-  const title = { bill: 'CONTRACTOR BILL', inv: 'SALE TAX INVOICE', dc: 'DELIVERY CHALLAN' }[k];
-  const lab = k === 'inv' ? 'INVOICE NO' : 'SER NO';
+  const title = { bill: 'CONTRACTOR BILL', inv: 'SALE TAX INVOICE', dc: 'DELIVERY CHALLAN', insp: 'INSPECTION NOTE' }[k];
+  const lab = k === 'inv' ? 'INVOICE NO' : (k === 'insp' ? 'INSP NOTE NO' : 'SER NO');
   let top = '';
   if (k === 'bill') {
     top = `<div class="bx"><div>${esc(S.bank)}</div><div>Account No: ${esc(S.acct)}</div><div>${esc(S.branch)}</div></div>`;
@@ -652,9 +655,9 @@ function head(k, pg, pgs) {
   const info = `<table class="inf">
     <tr>
       <td class="k l" style="width:14%">${lab}</td>
-      <td style="width:36%"></td>
+      <td class="k" style="font-size:22px; width:36%; text-align:center;">${esc(B.no)}</td>
       <td class="k" style="width:15%"></td>
-      <td class="k" style="font-size:20px;width:35%">${esc(B.no)}</td>
+      <td style="width:35%"></td>
     </tr>
     <tr>
       <td class="k l" style="width:14%">TO;</td>
@@ -681,21 +684,29 @@ function head(k, pg, pgs) {
 }
 
 function tbl(k, rows, i0, fill, last, C) {
-  const dc = k === 'dc';
+  const dc = k === 'dc', insp = k === 'insp';
   let tr = '';
   rows.forEach((r, i) => {
+    let extraCols = '';
+    if (dc) {
+      extraCols = '';
+    } else if (insp) {
+      extraCols = '<td style="font-weight:600;color:#2e7d32">ACCEPTED / PASSED</td>';
+    } else {
+      extraCols = `<td>${money(r.r)}</td><td>${money(r.a)}</td>`;
+    }
     tr += `<tr>
       <td>${i0 + i + 1}</td>
       <td class="l">${esc(r.d)}</td>
       <td>${esc(r.u)}</td>
       <td>${money(r.q)}</td>
-      ${dc ? '' : `<td>${money(r.r)}</td><td>${money(r.a)}</td>`}
+      ${extraCols}
     </tr>`;
   });
   for (let i = 0; i < fill; i++) {
     tr += `<tr>
       <td>&nbsp;</td><td></td><td></td><td></td>
-      ${dc ? '' : '<td></td><td></td>'}
+      ${dc ? '' : (insp ? '<td></td>' : '<td></td><td></td>')}
     </tr>`;
   }
   return `
@@ -706,7 +717,7 @@ function tbl(k, rows, i0, fill, last, C) {
           <th class="l">DESCRIPTION</th>
           <th style="width:9%">U/I</th>
           <th style="width:9%">QTY</th>
-          ${dc ? '' : '<th style="width:12%">RATE</th><th style="width:21%">TOTAL AMOUNT</th>'}
+          ${dc ? '' : (insp ? '<th style="width:21%">INSPECTION REMARKS</th>' : '<th style="width:12%">RATE</th><th style="width:21%">TOTAL AMOUNT</th>')}
         </tr>
       </thead>
       <tbody>
@@ -733,7 +744,8 @@ function endb(k, C) {
       </table>
     `;
   }
-  return taxBlock + `<div class="sig">SIGNATURE &amp; STAMP</div>`;
+  const sigText = k === 'insp' ? 'INSPECTED &amp; APPROVED BY / SIGNATURE &amp; STAMP' : 'SIGNATURE &amp; STAMP';
+  return taxBlock + `<div class="sig">${sigText}</div>`;
 }
 
 function foot() {
@@ -937,8 +949,8 @@ function downloadExcel() {
   const C = calc();
   const B = b();
   const S = s();
-  const title = { bill: 'CONTRACTOR BILL', inv: 'SALE TAX INVOICE', dc: 'DELIVERY CHALLAN' }[tab];
-  const dc = tab === 'dc';
+  const title = { bill: 'CONTRACTOR BILL', inv: 'SALE TAX INVOICE', dc: 'DELIVERY CHALLAN', insp: 'INSPECTION NOTE' }[tab];
+  const dc = tab === 'dc', insp = tab === 'insp';
 
   let html = `
   <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
@@ -965,7 +977,7 @@ function downloadExcel() {
       <tr><td colspan="6" class="doc-title">${title}</td></tr>
       <tr><td colspan="6"></td></tr>
       <tr>
-        <td class="meta-lbl">INVOICE / SER NO:</td><td>${esc(B.no)}</td>
+        <td class="meta-lbl">INVOICE / SER NO:</td><td class="bold" style="text-align:center">${esc(B.no)}</td>
         <td class="meta-lbl">DATE:</td><td>${B.date ? dmy(B.date) : ''}</td>
         <td class="meta-lbl">REF NO:</td><td>${esc(B.ref)}</td>
       </tr>
@@ -979,7 +991,7 @@ function downloadExcel() {
         <th style="width:260px">DESCRIPTION</th>
         <th style="width:70px">U/I</th>
         <th style="width:70px">QTY</th>
-        ${dc ? '' : '<th style="width:100px">RATE</th><th style="width:130px">TOTAL AMOUNT</th>'}
+        ${dc ? '' : (insp ? '<th style="width:160px">REMARKS / STATUS</th>' : '<th style="width:100px">RATE</th><th style="width:130px">TOTAL AMOUNT</th>')}
       </tr>
       ${C.rows.map((r, i) => `
         <tr>
@@ -987,7 +999,7 @@ function downloadExcel() {
           <td>${esc(r.d)}</td>
           <td style="text-align:center">${esc(r.u)}</td>
           <td class="num">${r.q}</td>
-          ${dc ? '' : `<td class="num">${r.r}</td><td class="num bold">${r.a}</td>`}
+          ${dc ? '' : (insp ? '<td style="font-weight:bold;color:#2e7d32;text-align:center">ACCEPTED / PASSED</td>' : `<td class="num">${r.r}</td><td class="num bold">${r.a}</td>`)}
         </tr>
       `).join('')}
       ${tab === 'bill' ? `
@@ -1012,6 +1024,12 @@ function downloadExcel() {
           <td class="bold" style="background:#e8eaf6">GRAND TOTAL</td><td class="num bold" style="background:#e8eaf6">${C.total}</td>
         </tr>
       ` : ''}
+      ${tab === 'insp' ? `
+        <tr><td colspan="6"></td></tr>
+        <tr>
+          <td colspan="6" style="vertical-align:bottom; border:none; padding:15px; font-weight:bold;">INSPECTED &amp; APPROVED BY / SIGNATURE &amp; STAMP</td>
+        </tr>
+      ` : ''}
     </table>
   </body>
   </html>
@@ -1029,9 +1047,9 @@ function downloadWord() {
   const C = calc();
   const B = b();
   const S = s();
-  const title = { bill: 'CONTRACTOR BILL', inv: 'SALE TAX INVOICE', dc: 'DELIVERY CHALLAN' }[tab];
-  const lab = tab === 'inv' ? 'INVOICE NO' : 'SER NO';
-  const dc = tab === 'dc';
+  const title = { bill: 'CONTRACTOR BILL', inv: 'SALE TAX INVOICE', dc: 'DELIVERY CHALLAN', insp: 'INSPECTION NOTE' }[tab];
+  const lab = tab === 'inv' ? 'INVOICE NO' : (tab === 'insp' ? 'INSP NOTE NO' : 'SER NO');
+  const dc = tab === 'dc', insp = tab === 'insp';
 
   let html = `
   <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
@@ -1067,9 +1085,9 @@ function downloadWord() {
     <table>
       <tr>
         <td class="bold" style="width:16%;">${lab}</td>
-        <td style="width:34%;"></td>
-        <td class="bold" style="width:16%;"></td>
         <td class="bold center" style="font-size:13pt; width:34%;">${esc(B.no)}</td>
+        <td class="bold" style="width:16%;"></td>
+        <td style="width:34%;"></td>
       </tr>
       <tr>
         <td class="bold">TO:</td>
@@ -1086,7 +1104,7 @@ function downloadWord() {
           <th>DESCRIPTION</th>
           <th style="width:10%;">U/I</th>
           <th style="width:10%;">QTY</th>
-          ${dc ? '' : '<th style="width:14%;">RATE</th><th style="width:20%;">TOTAL AMOUNT</th>'}
+          ${dc ? '' : (insp ? '<th style="width:25%;">INSPECTION REMARKS</th>' : '<th style="width:14%;">RATE</th><th style="width:20%;">TOTAL AMOUNT</th>')}
         </tr>
       </thead>
       <tbody>
@@ -1096,7 +1114,7 @@ function downloadWord() {
             <td>${esc(r.d)}</td>
             <td class="center">${esc(r.u)}</td>
             <td class="right">${money(r.q)}</td>
-            ${dc ? '' : `<td class="right">${money(r.r)}</td><td class="right bold">${money(r.a)}</td>`}
+            ${dc ? '' : (insp ? '<td class="center bold" style="color:#2e7d32">ACCEPTED / PASSED</td>' : `<td class="right">${money(r.r)}</td><td class="right bold">${money(r.a)}</td>`)}
           </tr>
         `).join('')}
         ${tab === 'bill' ? `
@@ -1109,7 +1127,7 @@ function downloadWord() {
     </table>
 
     ${tab === 'inv' ? `
-      <table style="width:62%; margin-top:12px;">
+      <table style="width:56%; margin-top:12px; margin-left:auto;">
         <tr><td class="bold">TOTAL AMOUNT</td><td class="right bold">${money(C.total)}</td></tr>
         <tr><td class="bold">SALE TAX ${C.t}%</td><td class="right bold">${money(C.vat)}</td></tr>
         <tr><td class="bold">EXCLUDING AMOUNT</td><td class="right bold">${money(C.ex)}</td></tr>
@@ -1118,7 +1136,7 @@ function downloadWord() {
     ` : ''}
 
     <div style="margin-top:28px; font-size:12pt; font-weight:bold; text-decoration:underline;">
-      SIGNATURE &amp; STAMP
+      ${insp ? 'INSPECTED &amp; APPROVED BY / SIGNATURE &amp; STAMP' : 'SIGNATURE &amp; STAMP'}
     </div>
 
     <div class="footer">
@@ -1142,6 +1160,110 @@ function downloadWord() {
   a.download = `Babar_Traders_${title.replace(/\s+/g,'_')}_${B.no || 'bill'}.doc`;
   a.click();
   showToast('📄 Word document download ho gaya!');
+}
+
+function downloadPOState() {
+  if (!st.saved.length) {
+    alert('Abhi tak koi PO / Bill save nahi hai!');
+    return;
+  }
+  const S = s();
+  let rowsHtml = '';
+  let rowCount = 0;
+  let grandTotalSum = 0;
+
+  st.saved.forEach(bill => {
+    let billTotal = 0;
+    (bill.items || []).forEach(it => {
+      const q = +it.q || 0, r = +it.r || 0;
+      billTotal += q * r;
+    });
+    billTotal = Math.round(billTotal * 100) / 100;
+    const t = +S.tax || 18;
+    const ex = Math.round((billTotal / (1 + t / 100)) * 100) / 100;
+    const vat = Math.round((billTotal - ex) * 100) / 100;
+    grandTotalSum += billTotal;
+
+    (bill.items || []).forEach((it, idx) => {
+      rowCount++;
+      const q = +it.q || 0, r = +it.r || 0, amt = Math.round(q * r * 100) / 100;
+      rowsHtml += `
+        <tr>
+          <td style="text-align:center">${rowCount}</td>
+          <td class="bold" style="text-align:center">${esc(bill.po || '-')}</td>
+          <td class="bold" style="text-align:center">${esc(bill.no || '-')}</td>
+          <td style="text-align:center">${esc(bill.date ? dmy(bill.date) : '')}</td>
+          <td>${esc(bill.to || '')}</td>
+          <td>${esc(bill.ref || '')}</td>
+          <td style="text-align:center">${idx + 1}</td>
+          <td>${esc(it.d || '')}</td>
+          <td style="text-align:center">${esc(it.u || 'NOS')}</td>
+          <td class="num">${q}</td>
+          <td class="num">${r}</td>
+          <td class="num bold">${amt}</td>
+          <td style="text-align:center">${t}%</td>
+          <td class="num">${vat}</td>
+          <td class="num">${ex}</td>
+          <td class="num bold" style="background:#f9f9f9">${billTotal}</td>
+        </tr>
+      `;
+    });
+  });
+
+  let html = `
+  <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+  <head>
+    <meta charset="utf-8">
+    <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>PO State Database</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+    <style>
+      body { font-family: Arial, sans-serif; font-size: 10.5pt; }
+      .brand { font-size: 18pt; font-weight: bold; color: #0D47A1; text-align: center; height: 32px; }
+      .title { font-size: 14pt; font-weight: bold; text-align: center; text-decoration: underline; height: 26px; }
+      th { background: #0D47A1; color: #FFFFFF; font-weight: bold; border: 1px solid #000; text-align: center; padding: 6px; }
+      td { border: 1px solid #000; padding: 5px; }
+      .num { mso-number-format:"\#\,\#\#0\.00"; text-align: right; }
+      .bold { font-weight: bold; }
+    </style>
+  </head>
+  <body>
+    <table>
+      <tr><td colspan="16" class="brand">${esc(S.name)}</td></tr>
+      <tr><td colspan="16" class="title">COMPLETE PO STATE &amp; INVOICE ITEMS DATABASE</td></tr>
+      <tr><td colspan="16" style="text-align:center;color:#555">Export Date: ${today()} | Total PO Item Rows: ${rowCount}</td></tr>
+      <tr><td colspan="16"></td></tr>
+      <tr>
+        <th>SR#</th>
+        <th>PO NO</th>
+        <th>INVOICE NO</th>
+        <th>DATE</th>
+        <th>PARTY (TO)</th>
+        <th>REF NO</th>
+        <th>ITEM#</th>
+        <th>ITEM DESCRIPTION</th>
+        <th>U/I</th>
+        <th>QTY</th>
+        <th>RATE</th>
+        <th>ITEM AMOUNT</th>
+        <th>TAX%</th>
+        <th>SALE TAX</th>
+        <th>EXCL. AMOUNT</th>
+        <th>INVOICE TOTAL</th>
+      </tr>
+      ${rowsHtml}
+      <tr>
+        <td colspan="15" class="bold" style="text-align:right;background:#e3f2fd">ALL PO CUMULATIVE GRAND TOTAL:</td>
+        <td class="num bold" style="background:#e3f2fd">${Math.round(grandTotalSum * 100) / 100}</td>
+      </tr>
+    </table>
+  </body>
+  </html>
+  `;
+  const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `PO_State_Complete_Database_${today()}.xls`;
+  a.click();
+  showToast('📊 PO State Complete Excel Database download ho gayi!');
 }
 
 function downloadMasterSheet() {
@@ -1278,6 +1400,8 @@ document.addEventListener('click', e => {
     downloadExcel();
   } else if (t.id === 'dl_word') {
     downloadWord();
+  } else if (t.id === 'dl_po_state') {
+    downloadPOState();
   } else if (t.id === 'dl_master') {
     downloadMasterSheet();
   } else if (t.id === 'save') {
